@@ -1,4 +1,4 @@
-use crate::app_argument::AppArgument;
+use crate::{app_argument::AppArgument, method::Method};
 
 pub struct App {
   pub args: AppArgument,
