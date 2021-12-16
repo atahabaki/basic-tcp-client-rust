@@ -1,4 +1,8 @@
-use std::{io::{Read, Write}, net::TcpStream, process::exit, thread};
+use std::{
+  io::{Read, Write},
+  net::TcpStream,
+  process::exit,
+};
 
 use crate::{address::Address, app_argument::AppArgument, method::Method};
 
@@ -65,32 +69,44 @@ impl App {
   }
 
   pub fn send_req(&self) {
-    let addr = format!("{}:{}", self.args.address.host, self.args.address.port.unwrap_or("80".into()));
+    let addr = format!(
+      "{}:{}",
+      self.args.address.host,
+      self
+        .args
+        .address
+        .port
+        .as_ref()
+        .unwrap_or(&String::from("80"))
+    );
     match TcpStream::connect(&addr) {
       Ok(mut stream) => {
-        thread::spawn(move || {
-          let mut buffer = String::new();
-          loop {
-            match stream.read_to_string(&mut buffer) {
-              Ok(status) => {
-                // means OK, everything went right, close the program!..
-                if status == 0 {
-                  exit(0);
-                } else {
-                  println!("{}", buffer);
-                  exit(0);
-                }
-              }
-              Err(e) => {
-                eprintln!(
-                  "Something went wrong here while trying to read response from {}",
-                  addr
-                );
-                panic!("{}", e);
+        let buf = self.args.to_string();
+        match &mut stream.write_all(buf.as_bytes()) {
+          Ok(_) => {}
+          Err(e) => panic!("{}", e),
+        };
+        let mut buffer = String::new();
+        loop {
+          match stream.read_to_string(&mut buffer) {
+            Ok(status) => {
+              // means OK, everything went right, close the program!..
+              if status == 0 {
+                exit(0);
+              } else {
+                println!("{}", buffer);
+                exit(0);
               }
             }
+            Err(e) => {
+              eprintln!(
+                "Something went wrong here while trying to read response from {}",
+                addr
+              );
+              panic!("{}", e);
+            }
           }
-        });
+        }
       }
       Err(e) => {
         panic!("{}", e);
