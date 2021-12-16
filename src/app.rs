@@ -1,4 +1,6 @@
-use crate::{app_argument::AppArgument, method::Method};
+use std::{io::{Read, Write}, net::TcpStream, process::exit, thread};
+
+use crate::{address::Address, app_argument::AppArgument, method::Method};
 
 pub struct App {
   pub args: AppArgument,
@@ -63,5 +65,39 @@ impl App {
   }
 
   pub fn send_req(&self) {
+    let address = Address::from_string(self.args.address.clone());
+    dbg!("{:#?}", &address);
+    let addr = format!("{}:{}", address.host, address.port.unwrap_or("80".into()));
+    match TcpStream::connect(&addr) {
+      Ok(mut stream) => {
+        stream.write(self.args.to_string());
+        thread::spawn(move || {
+          let mut buffer = String::new();
+          loop {
+            match stream.read_to_string(&mut buffer) {
+              Ok(status) => {
+                // means OK, everything went right, close the program!..
+                if status == 0 {
+                  exit(0);
+                } else {
+                  println!("{}", buffer);
+                  exit(0);
+                }
+              }
+              Err(e) => {
+                eprintln!(
+                  "Something went wrong here while trying to read response from {}",
+                  addr
+                );
+                panic!("{}", e);
+              }
+            }
+          }
+        });
+      }
+      Err(e) => {
+        panic!("{}", e);
+      }
+    }
   }
 }
