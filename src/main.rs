@@ -1,24 +1,10 @@
 use std::{env, process::exit};
 
+use app_argument::AppArgument;
 use method::Method;
 
 mod method;
-
-struct AppArgument {
-  address: String,
-  method: Method,
-  body: Option<String>,
-}
-
-impl Default for AppArgument {
-  fn default() -> Self {
-    AppArgument {
-      address: String::from("127.0.0.1"),
-      method: Method::default(),
-      body: None,
-    }
-  }
-}
+mod app_argument;
 
 struct App {
   args: AppArgument,
