@@ -16,13 +16,13 @@ impl App {
       2 => {
         //exec <address> : Use defaults...
         let mut app_args = AppArgument::default();
-        app_args.address = args[1].clone();
+        app_args.address = Address::from_string(args[1].clone());
         Ok(app_args)
       }
       3 => {
         //exec <address> <method> : Probably POST with no body?...
         let mut app_args = AppArgument::default();
-        app_args.address = args[1].clone();
+        app_args.address = Address::from_string(args[1].clone());
         if let Some(method) = Method::from_string(args[2].clone()) {
           app_args.method = method;
         } else {
@@ -33,7 +33,7 @@ impl App {
       4 => {
         //exec <address> <method> <body> : Probably POST...
         let mut app_args = AppArgument::default();
-        app_args.address = args[1].clone();
+        app_args.address = Address::from_string(args[1].clone());
         if let Some(method) = Method::from_string(args[2].clone()) {
           app_args.method = method;
         } else {
@@ -65,12 +65,9 @@ impl App {
   }
 
   pub fn send_req(&self) {
-    let address = Address::from_string(self.args.address.clone());
-    dbg!("{:#?}", &address);
-    let addr = format!("{}:{}", address.host, address.port.unwrap_or("80".into()));
+    let addr = format!("{}:{}", self.args.address.host, self.args.address.port.unwrap_or("80".into()));
     match TcpStream::connect(&addr) {
       Ok(mut stream) => {
-        stream.write(self.args.to_string());
         thread::spawn(move || {
           let mut buffer = String::new();
           loop {

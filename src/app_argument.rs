@@ -1,7 +1,7 @@
-use crate::method::Method;
+use crate::{method::Method, address::Address};
 
 pub struct AppArgument {
-  pub address: String,
+  pub address: Address,
   pub method: Method,
   pub body: Option<String>,
 }
@@ -9,7 +9,7 @@ pub struct AppArgument {
 impl Default for AppArgument {
   fn default() -> Self {
     AppArgument {
-      address: String::from("127.0.0.1"),
+      address: Address::default(),
       method: Method::default(),
       body: None,
     }
