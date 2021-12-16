@@ -44,7 +44,7 @@ impl App {
     }
   }
 
-  fn new(args: Vec<String>) -> Self {
+  pub fn new(args: Vec<String>) -> Self {
     match Self::_validate_args(args) {
       Ok(app_args) => App { args: app_args },
       Err(e) => {
@@ -62,6 +62,6 @@ impl App {
     println!("You could leave GET's body empty, but don't leave empty the POST's body...");
   }
 
-  fn send_req(&self) {
+  pub fn send_req(&self) {
   }
 }
