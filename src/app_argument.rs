@@ -1,9 +1,9 @@
 use crate::method::Method;
 
 pub struct AppArgument {
-  address: String,
-  method: Method,
-  body: Option<String>,
+  pub address: String,
+  pub method: Method,
+  pub body: Option<String>,
 }
 
 impl Default for AppArgument {
