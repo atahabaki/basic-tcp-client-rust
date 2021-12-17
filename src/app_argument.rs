@@ -18,28 +18,34 @@ impl Default for AppArgument {
 
 impl ToString for AppArgument {
   fn to_string(&self) -> String {
-    let l1 = format!(
-      "{} /{} HTTP/1.1",
+    let path = self.address.path.as_ref();
+    let port = self.address.port.as_ref();
+    let body = self.body.as_ref();
+    let host = &self.address.host;
+    let mutual = format!(
+      "
+{} /{} HTTP/1.1\r
+Host: {}:{}\r",
       self.method.to_string(),
-      self.address.path.as_ref().unwrap_or(&String::new())
+      path.unwrap_or(&String::new()),
+      host,
+      port.unwrap_or(&String::from("80"))
     );
-    let l2 = format!(
-      "Host: {}:{}",
-      self.address.host,
-      self.address.port.as_ref().unwrap_or(&String::from("80"))
-    );
-    let l3 = format!("{}", self.body.as_ref().unwrap_or(&String::new()));
-    let l = if self.method.to_string() == Method::GET.to_string() {
-      format!("{}\n{}\r\n\r\n{}\r\n", l1, l2, l3)
+    return if self.method == Method::GET {
+      mutual + "\n\r\n"
     } else {
-      let l5 = format!(
-        "Content-Length: {}",
-        self.body.as_ref().unwrap_or(&String::new()).len() + 1
-      );
-      let l6 = "Content-Type: application/json";
-      format!("{}\r\n{}\r\n{}\r\n{}\r\n\r\n{}\r\n", l1, l2, l6, l5, l3)
+      format!(
+        "{}
+Content-Length: {}\r
+Content-Type: application/json\r
+\r
+{}
+\r
+\r\n",
+        mutual,
+        body.unwrap_or(&String::new()).len(),
+        body.unwrap_or(&String::new())
+      )
     };
-    dbg!("{:#?}", &l);
-    l
   }
 }
